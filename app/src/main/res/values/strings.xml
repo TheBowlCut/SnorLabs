@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SnorLabs_a1</string>
+    <string name="app_name">SnorLabs</string>
     <string-array name="settings">
         <item>Select</item>
         <item>Feedback</item>
