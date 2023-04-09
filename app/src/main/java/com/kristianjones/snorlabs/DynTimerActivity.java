@@ -73,6 +73,7 @@ public class DynTimerActivity extends AppCompatActivity {
         minutePicker.setMinValue(0);
         minutePicker.setMaxValue(59);
 
+        // Checks whether user in in power saving mode.
         powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         powerSaveMode = powerManager.isPowerSaveMode();
 
@@ -97,6 +98,9 @@ public class DynTimerActivity extends AppCompatActivity {
         startActivity(dynIntent);
     }
 
+    // Dialog fragment that will advise user to turn off power saving mode.
+    // If accepted, user will be sent to power saving mode settings.
+    // If declined, user will not be able to use app.
     public static class StartDialogFragment extends DialogFragment {
         @NotNull
         @Override
