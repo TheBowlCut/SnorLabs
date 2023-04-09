@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -69,7 +70,6 @@ public class CancelActivity extends AppCompatActivity {
         startActivity(cancelIntent);
     }
 
-    @SuppressLint("SetTextI18n")
     @RequiresApi(api = 31)
     public void snoozeAlarm (View view) {
         // When pressed, snooze alarm will:
@@ -77,7 +77,7 @@ public class CancelActivity extends AppCompatActivity {
         // Not in dubeg mode, set a 10 minute timer.
 
         // Set description view to notify user alarm is snoozed.
-        descTextView.setText("Alarm snoozed");
+        descTextView.setText(R.string.snoozeTextView);
 
         // First we have to cancel everything to make sure both alarms don't go off.
         // Cancels the countdown service
@@ -108,10 +108,12 @@ public class CancelActivity extends AppCompatActivity {
         secondNow = calendar.get(android.icu.util.Calendar.SECOND);
 
         // Set the 10 second alarm (Initially for debug)
-        secondNow = secondNow + 10;
+        secondNow = secondNow + 600;
 
         //Start new alarm with 10s timer.
         StartAlarm alarm = new StartAlarm(getApplicationContext(),hourNow,minutesNow,secondNow);
+
+        Toast.makeText(CancelActivity.this,R.string.snoozeToast,Toast.LENGTH_LONG).show();
 
     }
 }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SnorLabs</string>
     <string-array name="settings">
@@ -32,5 +33,4 @@
     <string name="finishButton">Finish</string>
     <string name="snoozeTextView">Alarm snoozed 10 minutes</string>
     <string name="snoozeToast">Alarm snoozed 10 minutes</string>
-
 </resources>
