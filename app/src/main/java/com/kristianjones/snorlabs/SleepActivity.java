@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static android.app.PendingIntent.FLAG_MUTABLE;
 import static com.google.android.gms.location.SleepClassifyEvent.extractEvents;
@@ -72,6 +73,8 @@ public class SleepActivity extends AppCompatActivity {
 
     Spinner settingSpinner;
 
+    String hms;
+
     Task<Void> task;
 
     TextView descTextView;
@@ -115,9 +118,6 @@ public class SleepActivity extends AppCompatActivity {
         timerMinute = bundle.getInt("timerM");
         alarmHour = bundle.getInt("alarmH");
         alarmMinute = bundle.getInt("alarmM");
-
-        //Set titleTextView to equal time left
-        titleTextView.setText(getString(R.string.titleTextInitial)+timerHour+":"+timerMinute);
 
         //Set regular alarm
         //First, update TextView with latest wake up time
@@ -208,6 +208,27 @@ public class SleepActivity extends AppCompatActivity {
         descTextView.setText(timeText);
     }
 
+    @SuppressLint("DefaultLocale")
+    public void milliConverter (Long millis) {
+
+        int hours = (int) (millis / 3600);
+        int minutes = (int) (millis / 60);
+        int seconds = (int) (millis - (minutes * 60));
+
+        String secondString = Integer.toString(seconds);
+
+        hms = String.format("%02d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+
+        if (seconds <= 9) {
+            secondString = "0" + secondString;
+        }
+    }
+
     @RequiresApi(api = 31)
     public void convertToMilli(Integer hours, Integer minutes) {
 
@@ -218,6 +239,13 @@ public class SleepActivity extends AppCompatActivity {
         // Combine milliseconds of hours and minutes
         totalMilli = timerHourMilli + timerMinuteMilli;
 
+        //Convert totalMilli to string in hours:mins:secs
+        milliConverter(totalMilli);
+
+        //Set titleTextView to equal time left
+        titleTextView.setText(String.format("%s%s", getString(R.string.titleTextInitial), " " + hms));
+
+        Log.d(TAG,"converttoMilli");
         startTracking();
     }
 
@@ -238,6 +266,7 @@ public class SleepActivity extends AppCompatActivity {
 
         task = ActivityRecognition.getClient(this).requestSleepSegmentUpdates(timerPendingIntent,
                 SleepSegmentRequest.getDefaultSleepSegmentRequest());
+        Log.d(TAG,"startTracking");
 
     }
 
@@ -331,7 +360,7 @@ public class SleepActivity extends AppCompatActivity {
     }
 
     public BroadcastReceiver dynamicReceiver = new BroadcastReceiver() {
-        @SuppressLint("SetTextI18n")
+        @SuppressLint({"SetTextI18n", "DefaultLocale"})
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -340,12 +369,15 @@ public class SleepActivity extends AppCompatActivity {
 
             timerTimeLeft = intent.getLongExtra("countdownTimer",0);
 
+            milliConverter(timerTimeLeft);
+
             if (timerTimeLeft > 0) {
-                titleTextView.setText("Sleep timer left: " + String.valueOf(timerTimeLeft/1000));
+                titleTextView.setText("Sleep timer left: " + hms);
             } else {
                 titleTextView.setText("Timer complete");
             }
 
         }
     };
+
 }
