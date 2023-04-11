@@ -2,6 +2,7 @@ package com.kristianjones.snorlabs;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -44,8 +45,15 @@ public class CancelActivity extends AppCompatActivity {
 
     }
 
-    public void finishAlarm (View view) {
+    public void finishButton (View view) {
+        finishAlarm();
 
+        // Once service is shut down, the app will return to main activity.
+        Intent cancelIntent = new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(cancelIntent);
+    }
+
+    public void finishAlarm() {
         // Cancels the countdown service
         try {
             Intent countdownIntent = new Intent(getApplicationContext(), CountdownService.class);
@@ -65,9 +73,10 @@ public class CancelActivity extends AppCompatActivity {
                 PendingIntent.FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
         alarmManager.cancel(pendingIntent);
 
-        // Once service is shut down, the app will return to main activity.
-        Intent cancelIntent = new Intent(getApplicationContext(),MainActivity.class);
-        startActivity(cancelIntent);
+        // Close notification
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(1);
+
     }
 
     @RequiresApi(api = 31)
@@ -110,10 +119,20 @@ public class CancelActivity extends AppCompatActivity {
         // Set the 10 second alarm (Initially for debug)
         secondNow = secondNow + 600;
 
-        //Start new alarm with 10s timer.
+        //Start new alarm with 10 min timer.
         StartAlarm alarm = new StartAlarm(getApplicationContext(),hourNow,minutesNow,secondNow);
 
         Toast.makeText(CancelActivity.this,R.string.snoozeToast,Toast.LENGTH_LONG).show();
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAlarm();
+
+        // Once service is shut down, the app will return to main activity.
+        Intent cancelIntent = new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(cancelIntent);
     }
 }

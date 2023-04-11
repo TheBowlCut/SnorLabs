@@ -137,7 +137,15 @@ public class SleepActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public void cancelAll (View view) {
+    public void cancelButton (View view) {
+        cancelAll();
+
+        // Once service is shut down, the app will return to main activity.
+        Intent cancelIntent = new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(cancelIntent);
+    }
+
+    public void cancelAll() {
 
         // Cancels all services
         // Cancels the alarm service. OnDestroy, the service will shut down.
@@ -166,9 +174,6 @@ public class SleepActivity extends AppCompatActivity {
             unregisterReceiver(sleepReceiver);
         }
 
-        // Once service is shut down, the app will return to main activity.
-        Intent cancelIntent = new Intent(getApplicationContext(),MainActivity.class);
-        startActivity(cancelIntent);
     }
 
     @SuppressLint("SetTextI18n")
@@ -199,6 +204,13 @@ public class SleepActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG,"onResume");
         //registerReceiver(dynamicReceiver, new IntentFilter(CountdownService.countdownService));
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        cancelAll();
+
     }
 
     public void updateRegText(Calendar c) {
