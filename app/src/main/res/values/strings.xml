@@ -18,6 +18,8 @@
     <string name="feedback_beta8">7) Tap Post </string>
     <string name="feedback_beta9"> Alternatively, please share your experience with snorlabs101@help.com</string>
     <string name="titleTextInitial">Sleep timer set to:  </string>
+    <string name="titleTextPause">Timer paused:  </string>
+    <string name="titleTextRunning">Sleep Timer Left:  </string>
     <string name="debugStringInitial">Timestamp and sleepscore when available</string>
     <string name="requestPowerModeOff">This app will not work if power saving mode is on. Please turn off to continue using</string>
     <string name="goToSettings">Settings</string>
