@@ -131,12 +131,10 @@ public class SleepActivity extends AppCompatActivity {
         StartAlarm alarm = new StartAlarm(getApplicationContext(), alarmHour, alarmMinute, 0);
 
         //Initialise countdown - first need to convert data to milliseconds.
-        if (Build.VERSION.SDK_INT >= 31) {
-            convertToMilli(timerHour, timerMinute);
-        }
+        convertToMilli(timerHour, timerMinute);
+
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void cancelButton (View view) {
         cancelAll();
 
@@ -241,7 +239,6 @@ public class SleepActivity extends AppCompatActivity {
         }
     }
 
-    @RequiresApi(api = 31)
     public void convertToMilli(Integer hours, Integer minutes) {
 
         // Convert the timer values into milliseconds for the countdown service
@@ -261,7 +258,7 @@ public class SleepActivity extends AppCompatActivity {
         startTracking();
     }
 
-    @RequiresApi(api = 31)
+
     public void startTracking() {
 
         // Activate sleep segment requests using pending intent to listen to activityRecognition API
@@ -285,15 +282,15 @@ public class SleepActivity extends AppCompatActivity {
     public class SleepReceiver extends BroadcastReceiver {
         //Broadcast receiver looking for activity recognition broadcasts
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
         @SuppressLint("SetTextI18n")
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onReceive(Context context, Intent intent) {
 
             //DEBUG MODE - When just wanting to check whether code works, this will set the sleep
             // confidence level to 1. When not in DEBUG MODE, this will set the receiver to
             // X (95 as of 08/03/2023)
-            debugMode = false;
+            debugMode = true;
 
             if (debugMode) {
                 confLimit = 0;
@@ -329,7 +326,7 @@ public class SleepActivity extends AppCompatActivity {
                     // Add the sleep confidence value to the sleepConfidence array.
                     sleepConfidence.add(event.getConfidence());
 
-                    debugTextView.setText("Sleep score: " +confTimerInt + " Timestamp: " +confTimeStamp);
+                    debugTextView.setText(getString(R.string.debug_sleep_score) + confTimerInt);
 
                     //LOOP 1: if there is no timer started (!timerActive), activate timer.
                     if (confTimerInt >= confLimit && !timerActive && !timerStarted) {

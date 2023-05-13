@@ -7,7 +7,7 @@
         <item>Help</item>
     </string-array>
 
-    <string name="help_text">For additional support, please contact: snorlabs101@help.com</string>
+    <string name="help_text">For additional support, please contact: ssnorlabshelp101@gmail.com</string>
     <string name="back">Back</string>
     <string name="feedback_beta1">Provide Beta feedback to the developer:</string>
     <string name="feedback_beta2">1) Open the Play Store</string>
@@ -35,4 +35,5 @@
     <string name="finishButton">Finish</string>
     <string name="snoozeTextView">Alarm snoozed 10 minutes</string>
     <string name="snoozeToast">Alarm snoozed 10 minutes</string>
+    <string name="debug_sleep_score">\"Sleep score: \"</string>
 </resources>
