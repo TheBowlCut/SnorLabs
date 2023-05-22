@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -46,10 +47,14 @@ public class SleepActivity extends AppCompatActivity {
 
     Boolean alarmActive;
     Boolean debugMode;
+    Boolean onlyRegularAlarm;
     static Boolean timerStarted;
     static Boolean timerActive;
 
     Bundle bundle;
+
+    Button pauseButton;
+    Button cancelButton;
 
     Calendar c;
 
@@ -104,6 +109,8 @@ public class SleepActivity extends AppCompatActivity {
         descTextView = findViewById(R.id.descTextView3);
         titleTextView = findViewById(R.id.titleTextView3);
         debugTextView = findViewById(R.id.debugTextView);
+        pauseButton = findViewById(R.id.pauseButton);
+        cancelButton = findViewById(R.id.cancelButton);
         sleepReceiver = new SleepReceiver();
 
         // Set settings array adaptor, linked to the 'settings' string in strings.xml
@@ -143,6 +150,7 @@ public class SleepActivity extends AppCompatActivity {
             confLimit = 0;
         } else {
             confLimit = 95;
+            pauseButton.setVisibility(View.INVISIBLE);
         }
 
         // Logic gate querying whether to start sleep receiver
@@ -165,6 +173,7 @@ public class SleepActivity extends AppCompatActivity {
         } else {
             Log.d(TAG,"AlarmGate: " + alarmGate);
             titleTextView.setText(R.string.cancelDynamicAlarm);
+            onlyRegularAlarm = true;
         }
 
     }
@@ -193,7 +202,7 @@ public class SleepActivity extends AppCompatActivity {
         alarmManager.cancel(pendingIntent);
 
         // Cancels the countdown service. OnDestroy, the service will shut down.
-        if (timerActive) {
+        if (timerActive && !onlyRegularAlarm) {
             Log.d(TAG,"cancelAll");
             timerActive = false;
             timerStarted = false;
@@ -201,11 +210,10 @@ public class SleepActivity extends AppCompatActivity {
             unregisterReceiver(sleepReceiver);
             Intent countdownIntentService = new Intent(getApplicationContext(), CountdownService.class);
             getApplicationContext().stopService(countdownIntentService);
-        } else {
+        } else if (!timerActive && !onlyRegularAlarm) {
             timerPendingIntent.cancel();
             unregisterReceiver(sleepReceiver);
         }
-
     }
 
     @SuppressLint("SetTextI18n")
