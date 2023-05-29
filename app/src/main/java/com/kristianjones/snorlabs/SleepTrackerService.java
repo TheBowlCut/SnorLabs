@@ -60,7 +60,7 @@ public class SleepTrackerService extends Service {
 
     SleepReceiver sleepReceiver;
 
-    Task task;
+    Task<Void> task;
 
 
     @Nullable
@@ -254,6 +254,7 @@ public class SleepTrackerService extends Service {
     }
 
     public void pauseTimer() {
+        Log.d(TAG,"Timer Paused");
         countDownTimer.cancel();
         countdownIntent.putExtra("countdownTimer",0);
         countdownIntent.putExtra("pauseTimer",1);
@@ -261,6 +262,7 @@ public class SleepTrackerService extends Service {
     }
 
     public void resumeTimer() {
+        Log.d(TAG,"Timer resumed");
 
         countDownTimer = new CountDownTimer(timerTimeLeft, 1000) {
 

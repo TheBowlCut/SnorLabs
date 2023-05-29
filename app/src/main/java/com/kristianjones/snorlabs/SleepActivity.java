@@ -39,17 +39,7 @@ public class SleepActivity extends AppCompatActivity {
     // Generic tag as Log identifier
     static final String TAG = com.kristianjones.snorlabs.SleepActivity.class.getName();
 
-    // Review check for devices with Android 10 (29+). Already covered for 28 and below.
-    // Need to be covered for 29 and beyond.
-    // Action fired when transitions are triggered.
-    private final String TRANSITIONS_RECEIVER_ACTION =
-            BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
-
-    Boolean alarmActive;
     Boolean debugMode;
-    Boolean onlyRegularAlarm;
-    static Boolean timerStarted;
-    static Boolean timerActive;
 
     Bundle bundle;
 
@@ -58,30 +48,23 @@ public class SleepActivity extends AppCompatActivity {
 
     Calendar c;
 
-    Integer confLimit;
     Integer timerHour;
     Integer timerMinute;
-    Integer timerPaused;
     Integer alarmHour;
     Integer alarmMinute;
 
     Intent alarmIntent;
-    Intent timerIntent;
-    Intent countdownIntent;
     Intent trackingIntent;
 
     Long timerHourMilli;
     Long timerMinuteMilli;
     Long totalMilli;
+    Long timerPaused;
     Long timerTimeLeft;
-
-    PendingIntent timerPendingIntent;
 
     Spinner settingSpinner;
 
     String hms;
-
-    Task<Void> task;
 
     TextView descTextView;
     TextView titleTextView;
@@ -92,13 +75,6 @@ public class SleepActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sleep);
-
-        // We are here - all alarms are set and permission has been granted. Set alarmActive = True
-        alarmActive = true;
-
-        // Timer will not have started unless sleep confidence is recorded, initialise as false.
-        timerActive = false;
-        timerStarted = false;
 
         // Declare all variables
         settingSpinner = findViewById(R.id.optionsSpinner4);
@@ -184,15 +160,6 @@ public class SleepActivity extends AppCompatActivity {
         // JUST A DEBUG FUNCTION - it will pause the alarm.
         // Why is it useful? It will force pause the timer, and can validate if the timer resumes
         // once new broadcast is received.
-
-        if (timerActive) {
-
-            timerActive = false;
-            stopService(countdownIntent);
-            titleTextView.setText(getString(R.string.titleTextPause) + hms);
-
-        }
-
     }
 
     protected void onStart() {
@@ -284,7 +251,7 @@ public class SleepActivity extends AppCompatActivity {
             //Receives the amount of time left and displays it in a text view
 
             timerTimeLeft = intent.getLongExtra("countdownTimer",0);
-            timerPaused = intent.getIntExtra("pauseTimer",0);
+            timerPaused = intent.getLongExtra("pauseTimer",0);
 
             milliConverter(timerTimeLeft);
 
