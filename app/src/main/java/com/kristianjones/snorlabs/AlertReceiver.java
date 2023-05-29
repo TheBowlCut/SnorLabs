@@ -18,7 +18,7 @@ public class AlertReceiver extends BroadcastReceiver {
                 BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
 
         // Generic tag as Log identifier
-        final String TAG = SleepActivity.class.getName();
+        final String TAG = AlertReceiver.class.getName();
 
         Log.d(TAG, "onReceive");
         startService(context,intent);

@@ -57,8 +57,8 @@ public class CancelActivity extends AppCompatActivity {
     public void finishAlarm() {
         // Cancels the countdown service
         try {
-            Intent countdownIntent = new Intent(getApplicationContext(), CountdownService.class);
-            getApplicationContext().stopService(countdownIntent);
+            Intent trackingIntent = new Intent(this, SleepTrackerService.class);
+            stopService(trackingIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,8 +92,8 @@ public class CancelActivity extends AppCompatActivity {
         // First we have to cancel everything to make sure both alarms don't go off.
         // Cancels the countdown service
         try {
-            Intent countdownIntent = new Intent(getApplicationContext(), CountdownService.class);
-            getApplicationContext().stopService(countdownIntent);
+            Intent trackingIntent = new Intent(this, SleepTrackerService.class);
+            stopService(trackingIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }

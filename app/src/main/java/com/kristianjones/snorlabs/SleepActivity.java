@@ -61,25 +61,21 @@ public class SleepActivity extends AppCompatActivity {
     Integer confLimit;
     Integer timerHour;
     Integer timerMinute;
+    Integer timerPaused;
     Integer alarmHour;
     Integer alarmMinute;
 
     Intent alarmIntent;
     Intent timerIntent;
     Intent countdownIntent;
+    Intent trackingIntent;
 
-    Long alarmGate;
-    Long currentTime;
-    Long cUnix;
     Long timerHourMilli;
     Long timerMinuteMilli;
     Long totalMilli;
     Long timerTimeLeft;
 
     PendingIntent timerPendingIntent;
-
-    // Broadcast receiver to register whether user is asleep - SleepReceiver
-    SleepReceiver sleepReceiver;
 
     Spinner settingSpinner;
 
@@ -111,7 +107,6 @@ public class SleepActivity extends AppCompatActivity {
         debugTextView = findViewById(R.id.debugTextView);
         pauseButton = findViewById(R.id.pauseButton);
         cancelButton = findViewById(R.id.cancelButton);
-        sleepReceiver = new SleepReceiver();
 
         // Set settings array adaptor, linked to the 'settings' string in strings.xml
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.settings, android.R.layout.simple_spinner_item);
@@ -146,35 +141,12 @@ public class SleepActivity extends AppCompatActivity {
         // X (95 as of 08/03/2023)
         debugMode = false;
 
-        if (debugMode) {
-            confLimit = 0;
-        } else {
-            confLimit = 95;
+        if (!debugMode) {
             pauseButton.setVisibility(View.INVISIBLE);
         }
 
-        // Logic gate querying whether to start sleep receiver
-        // If less than 5 minutes between regular timer end, do not start tracking.
-        // It can take up to 5 minutes for first activity tracking reception.
-        currentTime = System.currentTimeMillis();
-        cUnix = c.getTimeInMillis();
-        Log.d(TAG,"Current Time: " + currentTime);
-        Log.d(TAG,"Alarm Item: " + cUnix);
-
-        alarmGate = (cUnix - currentTime)/1000;
-        Log.d(TAG,"Tester time secs: " + alarmGate);
-
-        // move logic to convert to Milli so titleTextView updated
-        if (alarmGate > 300) {
-
-            //Initialise countdown - first need to convert data to milliseconds.
-            convertToMilli(timerHour, timerMinute);
-
-        } else {
-            Log.d(TAG,"AlarmGate: " + alarmGate);
-            titleTextView.setText(R.string.cancelDynamicAlarm);
-            onlyRegularAlarm = true;
-        }
+        //Initialise countdown - first need to convert data to milliseconds.
+        convertToMilli(timerHour, timerMinute);
 
     }
 
@@ -189,7 +161,7 @@ public class SleepActivity extends AppCompatActivity {
     public void cancelAll() {
 
         // Cancels all services
-        // Cancels the alarm service. OnDestroy, the service will shut down.
+        // Cancels the alarm service.
         Log.d(TAG,"cancelAll");
         Intent alarmIntentService = new Intent(getApplicationContext(), AlarmService.class);
         getApplicationContext().stopService(alarmIntentService);
@@ -201,19 +173,10 @@ public class SleepActivity extends AppCompatActivity {
                 PendingIntent.FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
         alarmManager.cancel(pendingIntent);
 
-        // Cancels the countdown service. OnDestroy, the service will shut down.
-        if (timerActive && !onlyRegularAlarm) {
-            Log.d(TAG,"cancelAll");
-            timerActive = false;
-            timerStarted = false;
-            timerPendingIntent.cancel();
-            unregisterReceiver(sleepReceiver);
-            Intent countdownIntentService = new Intent(getApplicationContext(), CountdownService.class);
-            getApplicationContext().stopService(countdownIntentService);
-        } else if (!timerActive && !onlyRegularAlarm) {
-            timerPendingIntent.cancel();
-            unregisterReceiver(sleepReceiver);
-        }
+        // Cancels the dynamic alarm service.
+        trackingIntent = new Intent(this, SleepTrackerService.class);
+        stopService(trackingIntent);
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -235,22 +198,27 @@ public class SleepActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG,"onStart");
-        registerReceiver(sleepReceiver, new IntentFilter(TRANSITIONS_RECEIVER_ACTION));
-        registerReceiver(dynamicReceiver, new IntentFilter(CountdownService.countdownService));
+        registerReceiver(dynamicReceiver, new IntentFilter(SleepTrackerService.countdownReceiver));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG,"onResume");
-        //registerReceiver(dynamicReceiver, new IntentFilter(CountdownService.countdownService));
+        registerReceiver(dynamicReceiver, new IntentFilter(SleepTrackerService.countdownReceiver));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onResume");
+        unregisterReceiver(dynamicReceiver);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         cancelAll();
-
     }
 
     public void updateRegText(Calendar c) {
@@ -298,118 +266,13 @@ public class SleepActivity extends AppCompatActivity {
 
         Log.d(TAG,"converttoMilli");
 
-        startTracking();
-    }
+        // Initialise timer left so not empty.
+        timerTimeLeft = totalMilli;
 
-
-    public void startTracking() {
-
-        // Activate sleep segment requests using pending intent to listen to activityRecognition API
-        // Broadcast receiver with Intent filter TRANSITIONS_RECEIVER_ACTION - this is linked to the
-        // sleepReceiver. When this intent is activated through the pendingIntent, it activates the
-        // sleep receiver.
-
-        timerIntent = new Intent(TRANSITIONS_RECEIVER_ACTION);
-
-        timerPendingIntent = PendingIntent.getBroadcast(this,
-                0, timerIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE);
-
-        SleepSegmentRequest sleepSegmentRequest = null;
-
-        task = ActivityRecognition.getClient(this).requestSleepSegmentUpdates(timerPendingIntent,
-                SleepSegmentRequest.getDefaultSleepSegmentRequest());
-        Log.d(TAG,"startTracking");
-
-    }
-
-    public class SleepReceiver extends BroadcastReceiver {
-        //Broadcast receiver looking for activity recognition broadcasts
-
-        @SuppressLint("SetTextI18n")
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            // Logic gate querying whether to start sleep receiver
-            // If less than 5 minutes between regular timer end, do not start tracking.
-            // It can take up to 5 minutes for first activity tracking reception.
-            // This is to make sure reciever is cancelled before activity change.
-            currentTime = System.currentTimeMillis();
-            Log.d(TAG,"Current Time: " + currentTime);
-            Log.d(TAG,"Alarm Item: " + cUnix);
-
-            alarmGate = (cUnix - currentTime)/1000;
-            Log.d(TAG,"Tester time secs: " + alarmGate);
-
-            if (alarmGate > 300) {
-                // Initialising a list, API driven list with timestamp, sleep confidence,  device motion,
-                // ambient light level.
-                List<SleepClassifyEvent> sleepClassifyEvents;
-
-                // Extract the required info from the activity recognition broadcast (intent)
-                sleepClassifyEvents = extractEvents(intent);
-
-                Log.d(TAG, "sleepClassifyEvents = " + sleepClassifyEvents);
-
-                if (SleepClassifyEvent.hasEvents(intent)) {
-                    // If the intent has the required sleepActivity info, this loop reviews the data.
-                    Log.d(TAG, "hasEvents True");
-
-                    // Is this duplication of line 40?
-                    List<SleepClassifyEvent> result = extractEvents(intent);
-
-                    // Initialising an array to store sleepConfidence values
-                    ArrayList<Integer> sleepConfidence = new ArrayList<>();
-
-                    for (SleepClassifyEvent event : result) {
-
-                        // Pulls out the sleepConfidence value from the SleepClassifyEventList
-                        int confTimerInt = event.getConfidence();
-                        long confTimeStamp = event.getTimestampMillis();
-
-                        // Add the sleep confidence value to the sleepConfidence array.
-                        sleepConfidence.add(event.getConfidence());
-
-                        debugTextView.setText(getString(R.string.debug_sleep_score) + confTimerInt);
-
-                        //LOOP 1: if there is no timer started (!timerActive), activate timer.
-                        if (confTimerInt >= confLimit && !timerActive && !timerStarted) {
-                            // Set timerActive as true, this should stop countdown timers being
-                            // set in the future
-                            Log.d(TAG,"LOOP 1");
-                            timerActive = true;
-                            timerStarted = true;
-                            countdownIntent = new Intent(context, CountdownService.class);
-                            countdownIntent.putExtra("totalMilli", totalMilli);
-                            context.startForegroundService(countdownIntent);
-
-                            // LOOP 2: If confident User is now awake AFTER timer has started,
-                            // pause the active timer.
-                        } else if (confTimerInt < confLimit && timerActive && timerStarted) {
-                            Log.d(TAG,"LOOP 2");
-                            timerActive = false;
-                            stopService(countdownIntent);
-                            titleTextView.setText(getString(R.string.titleTextPause) + hms);
-
-                            // LOOP 3: If confider User is now asleep AFTER timer has started,
-                            // but timer is not active (Has been paused), resume the timer
-                            // Confidence is high user is asleep, timer has already been started,
-                            // but timer is not currently active
-                        } else if (confTimerInt >= confLimit && timerStarted && !timerActive) {
-                            Log.d(TAG,"LOOP 3");
-                            timerActive = true;
-                            countdownIntent = new Intent(context, CountdownService.class);
-                            countdownIntent.putExtra("totalMilli", timerTimeLeft);
-                            context.startForegroundService(countdownIntent);
-
-                        }
-                    }
-                }
-            } else {
-                Log.d(TAG,"AlarmGate Reciever: " + alarmGate);
-                cancelDynamicAlarm();
-            }
-        }
+        trackingIntent = new Intent(this, SleepTrackerService.class);
+        trackingIntent.putExtra("totalMilli", totalMilli);
+        trackingIntent.putExtra("timerTimeLeft",timerTimeLeft);
+        startService(trackingIntent);
     }
 
     public BroadcastReceiver dynamicReceiver = new BroadcastReceiver() {
@@ -421,59 +284,15 @@ public class SleepActivity extends AppCompatActivity {
             //Receives the amount of time left and displays it in a text view
 
             timerTimeLeft = intent.getLongExtra("countdownTimer",0);
+            timerPaused = intent.getIntExtra("pauseTimer",0);
 
             milliConverter(timerTimeLeft);
 
-            if (timerTimeLeft > 1000) {
+            if (timerPaused==0) {
                 titleTextView.setText(getString(R.string.titleTextRunning) + hms);
             } else {
-                titleTextView.setText("Timer complete");
-                Log.d(TAG,"cancelAll");
-                timerActive = false;
-                timerStarted = false;
-                timerPendingIntent.cancel();
-                unregisterReceiver(sleepReceiver);
-                Intent countdownIntentService = new Intent(getApplicationContext(), CountdownService.class);
-                getApplicationContext().stopService(countdownIntentService);
-                Intent alarmIntent = new Intent(getBaseContext(),AlarmService.class);
-                startService(alarmIntent);
+                titleTextView.setText(getString(R.string.titleTextPaused) + hms);
             }
-
-            //Need to cancel sleep receiver if regular alarm is about to go off
-            //Data leak if receiver left registered when activity changes when alarmManager goes off.
-            //If there is 60 seconds left before regular alarm goes off, this will cancel all dynamic alarm.
-            //Fragments might fix this?? - Just need to do if timer paused.
-
-            currentTime = System.currentTimeMillis();
-            Log.d(TAG,"Current Time: " + currentTime);
-            long alarmGate = (cUnix - currentTime)/1000;
-
-            if (alarmGate < 30) {
-                Log.d(TAG,"AlarmGate: " + alarmGate);
-                cancelDynamicAlarm();
-            }
-
         }
     };
-
-    public void cancelDynamicAlarm() {
-        // Cancels the countdown service. OnDestroy, the service will shut down.
-
-        titleTextView.setText(R.string.cancelDynamicAlarm);
-
-        if (timerActive) {
-            Log.d(TAG,"cancelAll");
-            timerActive = false;
-            timerStarted = false;
-            timerPendingIntent.cancel();
-            unregisterReceiver(sleepReceiver);
-            Intent countdownIntentService = new Intent(getApplicationContext(), CountdownService.class);
-            getApplicationContext().stopService(countdownIntentService);
-        } else {
-            timerPendingIntent.cancel();
-            unregisterReceiver(sleepReceiver);
-        }
-
-    }
-
 }

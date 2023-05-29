@@ -37,4 +37,5 @@
     <string name="snoozeToast">Alarm snoozed 10 minutes</string>
     <string name="debug_sleep_score">\"Sleep score: \"</string>
     <string name="cancelDynamicAlarm">Less than 5 minutes to regular alarm</string>
+    <string name="titleTextPaused">\"Sleep Timer Paused: \"</string>
 </resources>
