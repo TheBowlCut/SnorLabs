@@ -81,7 +81,7 @@ public class SleepTrackerService extends Service {
         //DEBUG MODE - When just wanting to check whether code works, this will set the sleep
         // confidence level to 1. When not in DEBUG MODE, this will set the receiver to
         // X (95 as of 08/03/2023)
-        debugMode = true;
+        debugMode = false;
 
         if (debugMode) {
             confLimit = 0;
