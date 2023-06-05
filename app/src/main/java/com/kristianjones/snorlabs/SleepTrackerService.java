@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
@@ -46,13 +47,17 @@ public class SleepTrackerService extends Service {
     Boolean timerActive;
     Boolean timerStarted;
 
+    Bundle extras;
+
     CountDownTimer countDownTimer;
 
     Integer confLimit;
+    Integer confTimerInt;
 
     Intent timerIntent;
     Intent countdownIntent;
 
+    Long confTimeStamp;
     Long totalMilli;
     Long timerTimeLeft;
 
@@ -77,6 +82,8 @@ public class SleepTrackerService extends Service {
         // Timer will not have started unless sleep confidence is recorded, initialise as false.
         timerActive = false;
         timerStarted = false;
+
+        extras = new Bundle();
 
         //DEBUG MODE - When just wanting to check whether code works, this will set the sleep
         // confidence level to 1. When not in DEBUG MODE, this will set the receiver to
@@ -121,7 +128,7 @@ public class SleepTrackerService extends Service {
 
         startTracking();
 
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
 
     }
     public void startTracking() {
@@ -174,11 +181,12 @@ public class SleepTrackerService extends Service {
                 for (SleepClassifyEvent event : result) {
 
                     // Pulls out the sleepConfidence value from the SleepClassifyEventList
-                    int confTimerInt = event.getConfidence();
-                    long confTimeStamp = event.getTimestampMillis();
+                    confTimerInt = event.getConfidence();
+                    confTimeStamp = event.getTimestampMillis();
 
                     // Add the sleep confidence value to the sleepConfidence array.
                     sleepConfidence.add(event.getConfidence());
+                    Log.d(TAG,"SleepConf Array: " + sleepConfidence);
 
                     //LOOP 1: if there is no timer started (!timerActive), activate timer.
                     if (confTimerInt >= confLimit && !timerActive && !timerStarted) {
@@ -205,13 +213,20 @@ public class SleepTrackerService extends Service {
                         timerActive = true;
                         resumeTimer();
 
+                    } else {
+                        extras.putLong("countdownTimer", totalMilli);
+                        extras.putInt("pauseTimer", 0);
+                        extras.putInt("sleepConf", confTimerInt);
+                        countdownIntent.putExtras(extras);
+
+                        sendBroadcast(countdownIntent);
                     }
                 }
             }
         }
     }
 
-    public void startTimer() {
+    public void startTimer() { ;
 
         countDownTimer = new CountDownTimer(totalMilli, 1000) {
 
@@ -226,8 +241,12 @@ public class SleepTrackerService extends Service {
                 //value in intent, when the broadcast is received, just set the bool to true in
                 // the receiver.
 
-                countdownIntent.putExtra("countdownTimer",timerTimeLeft);
-                countdownIntent.putExtra("pauseTimer",0);
+                extras.putLong("countdownTimer", timerTimeLeft);
+                extras.putInt("pauseTimer", 0);
+                extras.putInt("sleepConf", confTimerInt);
+
+                countdownIntent.putExtras(extras);
+
                 sendBroadcast(countdownIntent);
 
             }
@@ -241,8 +260,11 @@ public class SleepTrackerService extends Service {
                 // PendingIntent links to alarm receiver. When a broadcast is received, the
                 //Intent alertIntent = new Intent(this, AlertReceiver.class);
 
-                countdownIntent.putExtra("countdownTimer",0);
-                countdownIntent.putExtra("pauseTimer",0);
+                extras.putLong("countdownTimer", timerTimeLeft);
+                extras.putInt("pauseTimer", 0);
+                extras.putInt("sleepConf", confTimerInt);
+
+                countdownIntent.putExtras(extras);
                 sendBroadcast(countdownIntent);
 
                 Intent alarmIntent = new Intent(getBaseContext(),AlarmService.class);
@@ -256,8 +278,11 @@ public class SleepTrackerService extends Service {
     public void pauseTimer() {
         Log.d(TAG,"Timer Paused");
         countDownTimer.cancel();
-        countdownIntent.putExtra("countdownTimer",0);
-        countdownIntent.putExtra("pauseTimer",1);
+        extras.putLong("countdownTimer", timerTimeLeft);
+        extras.putInt("pauseTimer", 0);
+        extras.putInt("sleepConf", confTimerInt);
+
+        countdownIntent.putExtras(extras);
         sendBroadcast(countdownIntent);
     }
 
@@ -277,8 +302,11 @@ public class SleepTrackerService extends Service {
                 //value in intent, when the broadcast is received, just set the bool to true in
                 // the receiver.
 
-                countdownIntent.putExtra("countdownTimer",millisUntilFinished);
-                countdownIntent.putExtra("pauseTimer",0);
+                extras.putLong("countdownTimer", timerTimeLeft);
+                extras.putInt("pauseTimer", 0);
+                extras.putInt("sleepConf", confTimerInt);
+
+                countdownIntent.putExtras(extras);
                 sendBroadcast(countdownIntent);
 
             }
@@ -292,8 +320,11 @@ public class SleepTrackerService extends Service {
                 // PendingIntent links to alarm receiver. When a broadcast is received, the
                 //Intent alertIntent = new Intent(this, AlertReceiver.class);
 
-                countdownIntent.putExtra("countdownTimer",0);
-                countdownIntent.putExtra("pauseTimer",0);
+                extras.putLong("countdownTimer", timerTimeLeft);
+                extras.putInt("pauseTimer", 0);
+                extras.putInt("sleepConf", confTimerInt);
+
+                countdownIntent.putExtras(extras);
                 sendBroadcast(countdownIntent);
 
                 Intent alarmIntent = new Intent(getBaseContext(),AlarmService.class);

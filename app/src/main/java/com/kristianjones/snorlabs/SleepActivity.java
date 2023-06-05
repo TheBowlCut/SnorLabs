@@ -42,16 +42,19 @@ public class SleepActivity extends AppCompatActivity {
     Boolean debugMode;
 
     Bundle bundle;
+    Bundle extras;
 
     Button pauseButton;
     Button cancelButton;
 
     Calendar c;
 
-    Integer timerHour;
-    Integer timerMinute;
     Integer alarmHour;
     Integer alarmMinute;
+    Integer sleepConfidence;
+    Integer timerHour;
+    Integer timerMinute;
+    Integer timerPaused;
 
     Intent alarmIntent;
     Intent trackingIntent;
@@ -59,7 +62,6 @@ public class SleepActivity extends AppCompatActivity {
     Long timerHourMilli;
     Long timerMinuteMilli;
     Long totalMilli;
-    Long timerPaused;
     Long timerTimeLeft;
 
     Spinner settingSpinner;
@@ -83,13 +85,6 @@ public class SleepActivity extends AppCompatActivity {
         debugTextView = findViewById(R.id.debugTextView);
         pauseButton = findViewById(R.id.pauseButton);
         cancelButton = findViewById(R.id.cancelButton);
-
-        // Set settings array adaptor, linked to the 'settings' string in strings.xml
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.settings, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-
-        //Set spinner to arrayAdaptor
-        settingSpinner.setAdapter(adapter);
 
         // Read in intent from Alarm activity and pull bundle
         alarmIntent = getIntent();
@@ -216,6 +211,7 @@ public class SleepActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void convertToMilli(Integer hours, Integer minutes) {
 
         // Convert the timer values into milliseconds for the countdown service
@@ -239,7 +235,7 @@ public class SleepActivity extends AppCompatActivity {
         trackingIntent = new Intent(this, SleepTrackerService.class);
         trackingIntent.putExtra("totalMilli", totalMilli);
         trackingIntent.putExtra("timerTimeLeft",timerTimeLeft);
-        startService(trackingIntent);
+        startForegroundService(trackingIntent);
     }
 
     public BroadcastReceiver dynamicReceiver = new BroadcastReceiver() {
@@ -250,8 +246,11 @@ public class SleepActivity extends AppCompatActivity {
             //Listens to broadcast from CountdownService.
             //Receives the amount of time left and displays it in a text view
 
-            timerTimeLeft = intent.getLongExtra("countdownTimer",0);
-            timerPaused = intent.getLongExtra("pauseTimer",0);
+            extras = intent.getExtras();
+
+            timerTimeLeft = extras.getLong("countdownTimer",0);
+            timerPaused = extras.getInt("pauseTimer",0);
+            sleepConfidence = extras.getInt("sleepConf",0);
 
             milliConverter(timerTimeLeft);
 
@@ -260,6 +259,8 @@ public class SleepActivity extends AppCompatActivity {
             } else {
                 titleTextView.setText(getString(R.string.titleTextPaused) + hms);
             }
+
+            debugTextView.setText(getString(R.string.debug_sleep_score) + sleepConfidence);
         }
     };
 }
