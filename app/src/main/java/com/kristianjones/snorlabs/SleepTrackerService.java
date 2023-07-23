@@ -1,6 +1,5 @@
 package com.kristianjones.snorlabs;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,7 +14,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -67,18 +66,22 @@ public class SleepTrackerService extends Service {
 
     Task<Void> task;
 
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate() {
         super.onCreate();
 
         Log.d(TAG,"OnCreate");
+        //SleepService Toast - we are in
+        Toast toast = Toast.makeText(this,"SleepService Started",Toast.LENGTH_LONG);
+        toast.show();
+
         // Timer will not have started unless sleep confidence is recorded, initialise as false.
         timerActive = false;
         timerStarted = false;
@@ -93,23 +96,11 @@ public class SleepTrackerService extends Service {
         if (debugMode) {
             confLimit = 0;
         } else {
-            confLimit = 95;
+            confLimit = 90;
         }
 
         this.sleepReceiver = new SleepReceiver();
         this.registerReceiver(this.sleepReceiver, new IntentFilter(TRANSITIONS_RECEIVER_ACTION));
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-        intent.getExtras();
-
-        totalMilli = intent.getLongExtra("totalMilli",0);
-        timerTimeLeft = intent.getLongExtra("timerTimeLeft",0);
-
-        countdownIntent = new Intent(countdownReceiver);
 
         final String CHANNELID = "Foreground Service ID";
         NotificationChannel channel = new NotificationChannel(
@@ -125,6 +116,18 @@ public class SleepTrackerService extends Service {
                 .setSmallIcon(R.drawable.snorlab_app_owl);
 
         startForeground(2,notification.build());
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        intent.getExtras();
+
+        totalMilli = intent.getLongExtra("totalMilli",0);
+        timerTimeLeft = intent.getLongExtra("timerTimeLeft",0);
+
+        countdownIntent = new Intent(countdownReceiver);
 
         startTracking();
 

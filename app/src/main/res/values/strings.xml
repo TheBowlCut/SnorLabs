@@ -37,5 +37,6 @@
     <string name="debug_sleep_score">\"Sleep score: \"</string>
     <string name="cancelDynamicAlarm">Less than 5 minutes to regular alarm</string>
     <string name="titleTextPaused">\"Sleep Timer Paused: \"</string>
+    <string name="debugForegroundService">Error starting foregroundService</string>
 
 </resources>

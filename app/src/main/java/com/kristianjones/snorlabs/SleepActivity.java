@@ -19,6 +19,8 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.SleepClassifyEvent;
@@ -28,6 +30,7 @@ import com.google.android.gms.tasks.Task;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +52,8 @@ public class SleepActivity extends AppCompatActivity {
 
     Calendar c;
 
+    private ConfListAdapter mAdapter;
+
     Integer alarmHour;
     Integer alarmMinute;
     Integer sleepConfidence;
@@ -59,10 +64,14 @@ public class SleepActivity extends AppCompatActivity {
     Intent alarmIntent;
     Intent trackingIntent;
 
+    private final LinkedList<String> mConfList = new LinkedList<>();
+
     Long timerHourMilli;
     Long timerMinuteMilli;
     Long totalMilli;
     Long timerTimeLeft;
+
+    private RecyclerView mRecycleView;
 
     Spinner settingSpinner;
 
@@ -72,7 +81,7 @@ public class SleepActivity extends AppCompatActivity {
     TextView titleTextView;
     TextView debugTextView;
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +94,7 @@ public class SleepActivity extends AppCompatActivity {
         debugTextView = findViewById(R.id.debugTextView);
         pauseButton = findViewById(R.id.pauseButton);
         cancelButton = findViewById(R.id.cancelButton);
+        mRecycleView = findViewById(R.id.recyclerView);
 
         // Read in intent from Alarm activity and pull bundle
         alarmIntent = getIntent();
@@ -95,6 +105,18 @@ public class SleepActivity extends AppCompatActivity {
         timerMinute = bundle.getInt("timerM");
         alarmHour = bundle.getInt("alarmH");
         alarmMinute = bundle.getInt("alarmM");
+
+        //Initialise mConfList
+        mConfList.addLast("Sleep confidence: TBD");
+
+        // Create an adapter and supply the data to be displayed for sleepConfidence
+        mAdapter = new ConfListAdapter(this, mConfList);
+
+        //Connect the adapter with the RecycleViewer
+        mRecycleView.setAdapter(mAdapter);
+
+        //Give the RecyclerView a default layout manager
+        mRecycleView.setLayoutManager(new LinearLayoutManager(this));
 
         //Set regular alarm
         //First, update TextView with latest wake up time
@@ -152,9 +174,7 @@ public class SleepActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     public void pauseAll (View view) {
-        // JUST A DEBUG FUNCTION - it will pause the alarm.
-        // Why is it useful? It will force pause the timer, and can validate if the timer resumes
-        // once new broadcast is received.
+
     }
 
     protected void onStart() {
@@ -235,7 +255,15 @@ public class SleepActivity extends AppCompatActivity {
         trackingIntent = new Intent(this, SleepTrackerService.class);
         trackingIntent.putExtra("totalMilli", totalMilli);
         trackingIntent.putExtra("timerTimeLeft",timerTimeLeft);
-        startForegroundService(trackingIntent);
+
+        try{
+            startForegroundService(trackingIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            debugTextView.setText(R.string.debugForegroundService);
+        }
+
+
     }
 
     public BroadcastReceiver dynamicReceiver = new BroadcastReceiver() {
@@ -259,6 +287,17 @@ public class SleepActivity extends AppCompatActivity {
             } else {
                 titleTextView.setText(getString(R.string.titleTextPaused) + hms);
             }
+
+            int confListSize = mConfList.size();
+
+            // Add the new confidence value to the list
+            mConfList.addLast("Sleep Confidence: " + sleepConfidence);
+
+            // Notify the adapter the data has changed
+            mRecycleView.getAdapter().notifyItemInserted(confListSize);
+
+            // Scroll to the bottom
+            mRecycleView.smoothScrollToPosition(confListSize);
 
             debugTextView.setText(getString(R.string.debug_sleep_score) + sleepConfidence);
         }
