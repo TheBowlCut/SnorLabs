@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,6 +78,10 @@ public class SleepActivity extends AppCompatActivity {
 
     String hms;
 
+    SharedPreferences sharedPreferences;
+
+    StartAlarm alarm;
+
     TextView descTextView;
     TextView titleTextView;
     TextView debugTextView;
@@ -127,7 +132,18 @@ public class SleepActivity extends AppCompatActivity {
         updateRegText(c);
 
         //Initialise alarm service
-        StartAlarm alarm = new StartAlarm(getApplicationContext(), alarmHour, alarmMinute, 0);
+        alarm = new StartAlarm(getApplicationContext(), alarmHour, alarmMinute, 0);
+
+        //Set up shared preference in case of reboot
+        try{
+            sharedPreferences = this.getSharedPreferences("com.kristianjones.SnorLabs",Context.MODE_PRIVATE);
+            sharedPreferences.edit().putInt("alarmHour",alarmHour).apply();
+            sharedPreferences.edit().putInt("alarmMin",alarmMinute).apply();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         //DEBUG MODE - When just wanting to check whether code works, this will set the sleep
         // confidence level to 1. When not in DEBUG MODE, this will set the receiver to
@@ -302,4 +318,24 @@ public class SleepActivity extends AppCompatActivity {
             debugTextView.setText(getString(R.string.debug_sleep_score) + sleepConfidence);
         }
     };
+
+    public class SampleBootReceiver extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+                // Set the alarm here.
+                try{
+                    alarmHour = sharedPreferences.getInt("alarmHour",alarmHour);
+                    alarmMinute = sharedPreferences.getInt("alarmMin",alarmMinute);
+                    //Initialise alarm service
+                    alarm = new StartAlarm(getApplicationContext(), alarmHour, alarmMinute, 0);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
