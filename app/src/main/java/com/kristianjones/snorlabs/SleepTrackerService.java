@@ -94,7 +94,7 @@ public class SleepTrackerService extends Service {
         debugMode = false;
 
         if (debugMode) {
-            confLimit = 0;
+            confLimit = 2;
         } else {
             confLimit = 90;
         }
@@ -216,13 +216,12 @@ public class SleepTrackerService extends Service {
                         timerActive = true;
                         resumeTimer();
 
-                    } else {
-                        extras.putLong("countdownTimer", totalMilli);
-                        extras.putInt("pauseTimer", 0);
-                        extras.putInt("sleepConf", confTimerInt);
-                        countdownIntent.putExtras(extras);
-
-                        sendBroadcast(countdownIntent);
+                        // LOOP 4: If confident User is still awake after pause,
+                        // the timer stays in a paused state
+                    } else if (confTimerInt < confLimit && !timerActive && timerStarted) {
+                        Log.d(TAG,"LOOP 4");
+                        timerActive = false;
+                        pauseTimer();
                     }
                 }
             }
@@ -280,7 +279,13 @@ public class SleepTrackerService extends Service {
 
     public void pauseTimer() {
         Log.d(TAG,"Timer Paused");
-        countDownTimer.cancel();
+
+        try {
+            countDownTimer.cancel();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         extras.putLong("countdownTimer", timerTimeLeft);
         extras.putInt("pauseTimer", 0);
         extras.putInt("sleepConf", confTimerInt);

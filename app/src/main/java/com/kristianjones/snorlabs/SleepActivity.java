@@ -58,6 +58,7 @@ public class SleepActivity extends AppCompatActivity {
     Integer alarmHour;
     Integer alarmMinute;
     Integer sleepConfidence;
+    Integer sleepConfChecker;
     Integer timerHour;
     Integer timerMinute;
     Integer timerPaused;
@@ -119,6 +120,7 @@ public class SleepActivity extends AppCompatActivity {
 
         //Connect the adapter with the RecycleViewer
         mRecycleView.setAdapter(mAdapter);
+        sleepConfChecker = 0;
 
         //Give the RecyclerView a default layout manager
         mRecycleView.setLayoutManager(new LinearLayoutManager(this));
@@ -306,16 +308,21 @@ public class SleepActivity extends AppCompatActivity {
 
             int confListSize = mConfList.size();
 
-            // Add the new confidence value to the list
-            mConfList.addLast("Sleep Confidence: " + sleepConfidence);
+            if (!sleepConfidence.equals(sleepConfChecker)) {
+                // Add the new confidence value to the list
+                mConfList.addLast("Sleep Confidence: " + sleepConfidence);
 
-            // Notify the adapter the data has changed
-            mRecycleView.getAdapter().notifyItemInserted(confListSize);
+                // Notify the adapter the data has changed
+                mRecycleView.getAdapter().notifyItemInserted(confListSize);
 
-            // Scroll to the bottom
-            mRecycleView.smoothScrollToPosition(confListSize);
+                // Scroll to the bottom
+                mRecycleView.smoothScrollToPosition(confListSize);
+
+            }
 
             debugTextView.setText(getString(R.string.debug_sleep_score) + sleepConfidence);
+
+            sleepConfChecker = sleepConfidence;
         }
     };
 
