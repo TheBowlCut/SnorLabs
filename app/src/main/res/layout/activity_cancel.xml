@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1F012A"
+    android:background="#000025"
     tools:context=".CancelActivity">
 
     <Spinner
@@ -82,7 +82,7 @@
         android:id="@+id/finishButton"
         android:layout_width="136dp"
         android:layout_height="44dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/roboto_bold"
         android:onClick="finishButton"
         android:text="@string/finishButton"
