@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000025"
+    android:background="#181818"
+    android:fitsSystemWindows="true"
     tools:context=".SleepActivity">
 
     <TextView
@@ -14,7 +15,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:fontFamily="@font/roboto_bold"
+        android:fontFamily="@font/michroma"
         android:text="Sleep Timer Left: 04:32:32"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
@@ -32,7 +33,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@font/michroma"
         android:text="Latest wake up: 11:00:00"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
@@ -50,6 +51,7 @@
         android:fontFamily="@font/roboto_bold"
         android:onClick="cancelButton"
         android:text="Cancel"
+        android:textSize="18sp"
         app:backgroundTint="#C00003"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -65,6 +67,7 @@
         android:fontFamily="@font/roboto_bold"
         android:onClick="pauseAll"
         android:text="Pause"
+        android:textSize="18sp"
         app:backgroundTint="#C00003"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

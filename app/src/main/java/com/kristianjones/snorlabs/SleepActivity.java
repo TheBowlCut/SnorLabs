@@ -85,7 +85,6 @@ public class SleepActivity extends AppCompatActivity {
 
     TextView descTextView;
     TextView titleTextView;
-    TextView debugTextView;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -97,7 +96,6 @@ public class SleepActivity extends AppCompatActivity {
         settingSpinner = findViewById(R.id.optionsSpinner4);
         descTextView = findViewById(R.id.descTextView3);
         titleTextView = findViewById(R.id.titleTextView3);
-        debugTextView = findViewById(R.id.debugTextView);
         pauseButton = findViewById(R.id.pauseButton);
         cancelButton = findViewById(R.id.cancelButton);
         mRecycleView = findViewById(R.id.recyclerView);
@@ -278,7 +276,6 @@ public class SleepActivity extends AppCompatActivity {
             startForegroundService(trackingIntent);
         } catch (Exception e) {
             e.printStackTrace();
-            debugTextView.setText(R.string.debugForegroundService);
         }
 
 
@@ -319,8 +316,6 @@ public class SleepActivity extends AppCompatActivity {
                 mRecycleView.smoothScrollToPosition(confListSize);
 
             }
-
-            debugTextView.setText(getString(R.string.debug_sleep_score) + sleepConfidence);
 
             sleepConfChecker = sleepConfidence;
         }

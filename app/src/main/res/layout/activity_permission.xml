@@ -4,30 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000025"
+    android:background="#181818"
     tools:context=".PermissionActivity">
 
     <Button
         android:id="@+id/declineButton"
         android:layout_width="136dp"
         android:layout_height="44dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
         android:fontFamily="@font/roboto_bold"
         android:onClick="declineTerms"
         android:text="Decline"
+        android:textSize="18sp"
         app:backgroundTint="#C00003"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/acceptButton" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/permissionImageView"
-        android:layout_width="357dp"
+        android:layout_width="0dp"
         android:layout_height="172dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
         android:layout_weight="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,48 +39,50 @@
         android:id="@+id/permissionTextView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:fontFamily="@font/roboto_bold"
+        android:layout_marginBottom="32dp"
+        android:fontFamily="@font/michroma"
         android:text="User permission needed"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/permissionTextView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionImageView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/permissionTextView2"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:fontFamily="@font/michroma"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="SnorLabs needs access to your phones microphone and motion sensors in order to detect when you are asleep. "
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/acceptButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionTextView1" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/acceptButton"
         android:layout_width="136dp"
         android:layout_height="44dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginBottom="32dp"
         android:fontFamily="@font/roboto_bold"
         android:onClick="acceptTerms"
         android:text="Accept"
+        android:textSize="18sp"
         app:backgroundTint="#C00003"
+        app:layout_constraintBottom_toTopOf="@+id/declineButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionTextView2" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

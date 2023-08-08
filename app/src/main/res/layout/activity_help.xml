@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000025"
+    android:background="#181818"
+    android:fitsSystemWindows="true"
     tools:context=".HelpActivity">
 
 
@@ -12,11 +13,12 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/michroma"
         android:padding="16dp"
         android:text="@string/help_text"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="32sp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

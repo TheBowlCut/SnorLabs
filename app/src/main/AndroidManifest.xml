@@ -44,6 +44,7 @@
         <service android:name=".AlarmService"/>
         <service android:name=".CountdownService"/>
         <service android:name=".SleepTrackerService"/>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

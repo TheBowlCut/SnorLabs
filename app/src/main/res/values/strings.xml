@@ -26,8 +26,8 @@
     <string name="cancel">Cancel</string>
     <string name="mainSleepTimer3">Set your dynamic sleep timer</string>
     <string name="mainSleepTimer2">Take control of your sleep</string>
-    <string name="mainSleepTitle">Welcome to SnorLabs</string>
-    <string name="mainButtonText">Lets go!</string>
+    <string name="mainSleepTitle">SnorLabs</string>
+    <string name="mainButtonText">Lets go</string>
     <string name="finishAlarmTitle">Time to wake up</string>
     <string name="finishAlarmText">Well done, you took control of your sleep</string>
     <string name="snoozeButtonText">Snooze</string>

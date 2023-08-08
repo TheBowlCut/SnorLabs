@@ -4,61 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000025"
+    android:background="#181818"
+    android:fitsSystemWindows="true"
     tools:context=".DynTimerActivity">
 
-    <ImageView
-        android:id="@+id/snorImageView"
+    <TextView
+
+        android:id="@+id/textView10"
         android:layout_width="0dp"
-        android:layout_height="303dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
+        android:fontFamily="@font/michroma"
+        android:text="Dynamic timer"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/snorlab_circle" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewComma"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_width="42dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="64dp"
         android:text="  :  "
+        android:textAlignment="center"
         android:textColor="#EDE4E4"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/numberPickerMins"
-        app:layout_constraintEnd_toStartOf="@+id/textViewMins"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/textViewHours" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
     <TextView
         android:id="@+id/textViewMins"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/michroma"
         android:text="Minutes"
         android:textColor="#EDE4E4"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/numberPickerMins"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textViewComma" />
+        app:layout_constraintStart_toEndOf="@+id/textViewComma"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
     <Button
         android:id="@+id/dynSetButton"
         android:layout_width="136dp"
         android:layout_height="44dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginBottom="64dp"
         android:fontFamily="@font/roboto_bold"
         android:onClick="setTimer"
         android:text="Set timer"
+        android:textSize="18sp"
         app:backgroundTint="#C00003"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descTextView3" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/descTextView3"
@@ -67,31 +76,13 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@font/michroma"
         android:text="This timer will not start until  SnorLabs registers you are asleep, and will pause if you wake up"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextView2" />
-
-    <TextView
-        android:id="@+id/titleTextView2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="128dp"
-        android:layout_marginEnd="32dp"
-        android:fontFamily="@font/roboto_bold"
-        android:text="Set dynamic sleep timer"
-        android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/numberPickerMins" />
 
@@ -109,39 +100,38 @@
         android:id="@+id/numberPickerMins"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:background="#00F4F1F1"
         android:theme="@style/AppTheme.Picker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/numberPickerHours"
-        app:layout_constraintTop_toTopOf="@+id/numberPickerHours" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewComma" />
 
     <NumberPicker
         android:id="@+id/numberPickerHours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="32dp"
         android:background="#00F4F1F1"
         android:theme="@style/AppTheme.Picker"
         app:layout_constraintEnd_toStartOf="@+id/numberPickerMins"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewComma" />
 
     <TextView
         android:id="@+id/textViewHours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/michroma"
         android:text="    Hours"
         android:textColor="#EDE4E4"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/numberPickerHours"
         app:layout_constraintEnd_toStartOf="@+id/textViewComma"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
